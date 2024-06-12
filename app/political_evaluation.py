@@ -4,8 +4,19 @@ import re
 from bs4 import BeautifulSoup
 
 def extract_text_from_url(url, identifiers, is_class=True):
+    request_headers = {
+        'referer': 'https://www.scrapingcourse.com/ecommerce/',
+        'accept-language': 'en-US,en;q=0.9',
+        'content-type': 'application/json',
+        'accept-encoding': 'gzip, deflate, br',
+        'sec-ch-device-memory': '8',
+        'sec-ch-ua': '"Google Chrome";v="125", "Chromium";v="125", "Not.A/Brand";v="24"',
+        'sec-ch-ua-platform': "Windows",
+        'sec-ch-ua-platform-version': '"10.0.0"',
+        'sec-ch-viewport-width': '792'
+      }
     # Send a GET request to the URL
-    response = requests.get(url)
+    response = requests.get(url, headers=request_headers)
     
     # Check if the request was successful
     if response.status_code == 200:
@@ -101,6 +112,6 @@ def evaluate(mineral, date_from, date_to):
             pass
     
     if sources_asked == 0:
-        return 0.0
+        return [0.0]
     else:
-        return score/sources_asked
+        return [score/sources_asked]

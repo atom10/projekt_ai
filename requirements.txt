@@ -1,3 +1,8 @@
 requests
 bs4
 yfinance
+scikit-learn
+scipy
+matplotlib
+tensorflow
+xgboost
