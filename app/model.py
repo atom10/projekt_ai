@@ -11,6 +11,7 @@ import data as data_managment
 import joblib
 from tensorflow.keras.models import save_model, load_model
 import matplotlib.pyplot as plt
+from keras.optimizers import Adam
 
 sequence_length = 10
 
@@ -71,6 +72,60 @@ def train_model(data):
     X_test_combined = np.hstack((lstm_features_test, additional_features_test))
 
     # XGBoost Model
+    xgb_model.fit(X_train_combined, y_train)
+
+    y_pred = xgb_model.predict(X_test_combined)
+    mse = mean_squared_error(y_test, y_pred)
+    print(f'Mean Squared Error: {mse}')
+
+    mae = mean_absolute_error(y_test, y_pred)
+    mape = mean_absolute_percentage_error(y_test, y_pred)
+    print(f'Mean Absolute Error: {mae}')
+    print(f'Mean Absolute Percentage Error: {mape}')
+
+    # Generowanie wykresu z wynikami trenowania
+    plot_training_results(y_test, y_pred, history)
+
+    return lstm_model, xgb_model, scaler
+
+def retrain_models(data, lstm_model, xgb_model, scaler):
+    features = data[:, :-1]
+    target = data[:, -1]
+    shape = len(features[0])
+
+    # Normalize features using the existing scaler
+    features_scaled = scaler.transform(features)
+
+    # Create sequences for LSTM
+    def create_sequences(data, target):
+        xs, ys = [], []
+        for i in range(len(data) - sequence_length):
+            x = data[i:i + sequence_length]
+            y = target[i + sequence_length]
+            xs.append(x)
+            ys.append(y)
+        return np.array(xs), np.array(ys)
+
+    sequence_length = 10
+    X, y = create_sequences(features_scaled, target)
+
+    # Split data into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    lstm_model.compile(optimizer=Adam(), loss='mean_squared_error')
+    history = lstm_model.fit(X_train, y_train, epochs=20, batch_size=16, validation_split=0.1)
+
+    # Extract LSTM features
+    lstm_features_train = lstm_model.predict(X_train)
+    lstm_features_test = lstm_model.predict(X_test)
+
+    # Combine LSTM features with other inputs
+    additional_features_train = features[sequence_length:len(X_train) + sequence_length]
+    additional_features_test = features[len(X_train) + sequence_length:]
+
+    X_train_combined = np.hstack((lstm_features_train, additional_features_train))
+    X_test_combined = np.hstack((lstm_features_test, additional_features_test))
+
+    # Continue training XGBoost Model
     xgb_model.fit(X_train_combined, y_train)
 
     y_pred = xgb_model.predict(X_test_combined)

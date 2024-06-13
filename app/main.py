@@ -37,6 +37,7 @@ while True:
             10. save model to file\n\
             11. load model drom file\n\
             12. predict mineral price\n\
+            13. retrain\n\
             q. exit"
     )
     action = input()
@@ -77,6 +78,14 @@ while True:
         packet = data.generate_singe_data_packet(datetime.strptime(date, "%d-%m-%Y"), mineral, with_target=False)
         target = model.predict_target(packet, lstm_model, xgb_model, scaler)
         print(target)
+    elif action=='13':
+        print("start date for additional data in format dd-mm-yyyy: ")
+        start_date = input()
+        print("end date for additional data in format dd-mm-yyyy: ")
+        end_date = input()
+        lstm_model, xgb_model, scaler = model.load_models()
+        additional_data = data.generate_data(start_date, end_date)
+        lstm_model, xgb_model, scaler = model.retrain_models(additional_data, lstm_model, xgb_model, scaler)
     elif action=='q':
         pass
     
