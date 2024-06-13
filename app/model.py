@@ -16,6 +16,7 @@ sequence_length = 10
 
 def create_blank_models(X_element_shape, sequence_length=sequence_length):
     lstm_model = Sequential([
+        # LSTM(64, input_shape=(sequence_length, X.shape[2]), return_sequences=True),   #original line
         LSTM(64, input_shape=(sequence_length, X_element_shape), return_sequences=True),
         Dropout(0.2),
         LSTM(64, return_sequences=False),
@@ -112,23 +113,55 @@ def plot_training_results(y_test, y_pred, history):
     plt.show()
 
 def predict_target(single_X, lstm_model, xgb_model, scaler):
+    # Ensure single_X is in the correct shape
     single_X = np.array(single_X).reshape(1, -1)
+
+    # Normalize the single_X using the scaler fitted during training
     single_X_scaled = scaler.transform(single_X)
+
+    # Create the sequence for the LSTM model
     lstm_input = single_X_scaled.reshape(1, 1, -1)
+
+    # Get LSTM features
     lstm_features = lstm_model.predict(lstm_input)
+
+    # Combine LSTM features with the additional input features
     combined_features = np.hstack((lstm_features, single_X_scaled))
+
+    # Predict the target using the XGBoost model
     target_pred = xgb_model.predict(combined_features)
+
     return target_pred
 
 def save_models(lstm_model, xgb_model, scaler, lstm_path='lstm_model.h5', xgb_path='xgb_model.joblib', scaler_path='scaler.joblib'):
+    # Save the LSTM model
     save_model(lstm_model, lstm_path)
+
+    # Save the XGBoost model
     joblib.dump(xgb_model, xgb_path)
+
+    # Save the scaler
     joblib.dump(scaler, scaler_path)
+
     print(f'Models and scaler saved to {lstm_path}, {xgb_path}, and {scaler_path}')
 
+# Example usage:
+# save_models(lstm_model, xgb_model, scaler)
+
+
 def load_models(lstm_path='lstm_model.h5', xgb_path='xgb_model.joblib', scaler_path='scaler.joblib'):
+    # Load the LSTM model
     lstm_model = load_model(lstm_path)
+
+    # Load the XGBoost model
     xgb_model = joblib.load(xgb_path)
+
+    # Load the scaler
     scaler = joblib.load(scaler_path)
+
     print(f'Models and scaler loaded from {lstm_path}, {xgb_path}, and {scaler_path}')
+
     return lstm_model, xgb_model, scaler
+
+# Example usage:
+# lstm_model, xgb_model, scaler = load_models()
