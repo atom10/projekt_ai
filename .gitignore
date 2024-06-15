@@ -1,2 +1,4 @@
-ollama/
+ollama
 app/__pycache__
+.idea
+
