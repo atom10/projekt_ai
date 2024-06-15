@@ -86,7 +86,7 @@ def train_model(data):
     # Generowanie wykresu z wynikami trenowania
     plot_training_results(y_test, y_pred, history)
 
-    return lstm_model, xgb_model, scaler
+    return lstm_model, xgb_model, scaler, mse, mae, mape
 
 def retrain_models(data, lstm_model, xgb_model, scaler):
     features = data[:, :-1]
@@ -140,7 +140,7 @@ def retrain_models(data, lstm_model, xgb_model, scaler):
     # Generowanie wykresu z wynikami trenowania
     plot_training_results(y_test, y_pred, history)
 
-    return lstm_model, xgb_model, scaler
+    return lstm_model, xgb_model, scaler, mse, mae, mape
 
 def plot_training_results(y_test, y_pred, history):
     plt.figure(figsize=(14, 7))
@@ -164,7 +164,7 @@ def plot_training_results(y_test, y_pred, history):
     plt.legend()
 
     plt.tight_layout()
-    plt.savefig('training_results.png')
+    plt.savefig('static/training_results.png')
     plt.show()
 
 def predict_target(single_X, lstm_model, xgb_model, scaler):

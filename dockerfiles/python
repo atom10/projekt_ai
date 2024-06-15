@@ -1,16 +1,7 @@
-# docker/Dockerfile
-
-# Use the official Python slim image as the base image
 FROM python:slim
-
-# Set the working directory inside the container
 WORKDIR /app
-
-# Copy the requirements.txt file into the container
 COPY ./requirements.txt .
-
-# Install any dependencies listed in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Define the command to run the script
-CMD ["python", "main.py"]
+COPY . .
+EXPOSE 5000
+CMD ["python", "app.py"]
