@@ -5,16 +5,12 @@ services:
     build:
       dockerfile: dockerfiles/ollama
       context: ./
-    container_name: ollama
     environment:
       - LLM_MODEL=${LLM_MODEL}
     entrypoint: "/tmp/run-ollama.sh"
-    tty: true
     healthcheck:
       test: ollama --version || exit 1
-      interval: 10s
-    ports:
-      - "11434:11434"
+      interval: 60s
     volumes:
       - ./ollama:/root/.ollama
     restart: always
@@ -30,18 +26,12 @@ services:
     build:
       context: .
       dockerfile: dockerfiles/python
-    container_name: python_app
     environment:
       - LLM_MODEL=${LLM_MODEL}
     volumes:
       - ./app:/app
     ports:
       - "5000:5000"
-    stdin_open: true
-    tty: true
     depends_on:
       - ollama
     restart: always
-
-networks:
-  default:

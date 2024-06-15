@@ -1,11 +1,16 @@
 #!/bin/bash
 
-echo "Starting Ollama server..."
-ollama serve &
-ollama run $LLM_MODEL
+# Start Ollama in the background.
+/bin/ollama serve &
+# Record Process ID.
+pid=$!
 
+# Pause for Ollama to start.
+sleep 5
 
-echo "Waiting for Ollama server to be active..."
-while [ "$(ollama list | grep 'NAME')" == "" ]; do
-  sleep 1
-done
+echo "🔴 Retrieve LLAMA3 model..."
+ollama pull $LLM_MODEL
+echo "🟢 Done!"
+
+# Wait for Ollama process to finish.
+wait $pid
