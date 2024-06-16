@@ -26,6 +26,12 @@ lstm_model = None
 xgb_model = None
 scaler = None
 
+def track_state():
+    model_status = 'present' if lstm_model is None else 'missing'
+    flash(model_status, 'model_status')
+    data_status = 'present' if data_for_training is None else 'missing'
+    flash(data_status, 'data_status')
+
 def validate_dates(start_date, end_date):
     """Validate date range input."""
     if not start_date or datetime.strptime(start_date, "%d-%m-%Y") < datetime.strptime("01-01-1990", "%d-%m-%Y"):
@@ -35,6 +41,7 @@ def validate_dates(start_date, end_date):
     return None
 @app.route('/')
 def index():
+    track_state()
     return render_template('index.html')
 @app.route('/action', methods=['POST'])
 def action():
@@ -99,10 +106,13 @@ def action():
             result += html_utils.generate_metric_paragraph('Mean Absolute Error', mae)
             result += html_utils.generate_metric_paragraph('Mean Absolute Percentage Error', mape)
             result += html_utils.generate_image('static/training_results.png')
+    elif action == '14':
+        result = html_utils.generate_image('static/training_results.png')
     else:
         result = "Invalid action."
 
-    flash(result)
+    #track_state()
+    flash(result, 'result')
     return redirect(url_for('index'))
 
 

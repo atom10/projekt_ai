@@ -9,18 +9,35 @@
 <body>
     <div class="container">
         <nav>
+        Model status: {% with messages = get_flashed_messages(category_filter=["model_status"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                    {{ message | safe }}
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+
+        Data status: {% with messages = get_flashed_messages(category_filter=["data_status"]) %}
+            {% if messages %}
+                {% for message in messages %}
+                    {{ message | safe }}
+                {% endfor %}
+            {% endif %}
+            {% endwith %}
+    <br>
             <h1>Choose Action</h1>
             <form method="POST" action="/action" class="form">
-                <button type="submit" name="action" value="1" class="btn">Test LLM</button><br>
+                <!--<button type="submit" name="action" value="1" class="btn">Test LLM</button><br>
                 <button type="submit" name="action" value="2" class="btn">Test Political Evaluation</button><br>
                 <button type="submit" name="action" value="3" class="btn">Test Weather Evaluation</button><br>
                 <button type="submit" name="action" value="4" class="btn">Test Stock Evaluation</button><br>
-                <button type="submit" name="action" value="5" class="btn">Test Logistic Evaluation</button><br>
+                <button type="submit" name="action" value="5" class="btn">Test Logistic Evaluation</button><br>-->
                 <button type="submit" name="action" value="7" class="btn">Save Data to File</button><br>
                 <button type="submit" name="action" value="8" class="btn">Load Data from File</button><br>
                 <button type="submit" name="action" value="9" class="btn">Train New Models</button><br>
                 <button type="submit" name="action" value="10" class="btn">Save Model to File</button><br>
                 <button type="submit" name="action" value="11" class="btn">Load Model from File</button><br>
+                <button type="submit" name="action" value="14" class="btn">Show last training plot</button><br>
             </form>
             <form method="POST" action="/action" class="form">
                 <div class="form-group">
@@ -50,7 +67,7 @@
         <section class="results">
             <h2>Results</h2>
             <div class="spinner" id="loadingSpinner"></div>
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(category_filter=["result"]) %}
             {% if messages %}
                 {% for message in messages %}
                     {{ message | safe }}
