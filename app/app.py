@@ -27,9 +27,9 @@ xgb_model = None
 scaler = None
 
 def track_state():
-    model_status = 'present' if lstm_model is None else 'missing'
+    model_status = 'present' if lstm_model is not None else 'missing'
     flash(model_status, 'model_status')
-    data_status = 'present' if data_for_training is None else 'missing'
+    data_status = 'present' if data_for_training is not None else 'missing'
     flash(data_status, 'data_status')
 
 def validate_dates(start_date, end_date):

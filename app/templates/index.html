@@ -17,7 +17,7 @@
             {% endif %}
             {% endwith %}
 
-        Data status: {% with messages = get_flashed_messages(category_filter=["data_status"]) %}
+        , Data status: {% with messages = get_flashed_messages(category_filter=["data_status"]) %}
             {% if messages %}
                 {% for message in messages %}
                     {{ message | safe }}
