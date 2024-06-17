@@ -186,7 +186,27 @@ def predict_target(single_X, lstm_model, xgb_model, scaler):
     # Predict the target using the XGBoost model
     target_pred = xgb_model.predict(combined_features)
 
+    print("predicted target: " + str(target_pred))
     return target_pred
+
+def predict_target_v2(X_row, lstm_model, xgb_model, scaler, sequence_length=10):
+    # Normalize the single row
+    X_row_scaled = scaler.transform([X_row])
+
+    # Create a sequence from the single row by repeating it
+    X_sequence = np.array([X_row_scaled] * sequence_length)
+    X_sequence = X_sequence.reshape((1, sequence_length, -1))  # Reshape to (1, sequence_length, num_features)
+
+    # Predict LSTM features
+    lstm_features = lstm_model.predict(X_sequence)[0]
+
+    # Combine LSTM features with the original input row (normalized)
+    combined_features = np.hstack((lstm_features, X_row_scaled[0]))
+
+    # Predict using XGBoost
+    y_pred = xgb_model.predict(np.array([combined_features]))
+
+    return y_pred[0]
 
 def save_models(lstm_model, xgb_model, scaler, lstm_path='lstm_model.h5', xgb_path='xgb_model.joblib', scaler_path='scaler.joblib'):
     # Save the LSTM model

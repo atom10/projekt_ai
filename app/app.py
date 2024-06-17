@@ -7,10 +7,11 @@ import weather_evaluation as we
 import stock_evaluation as se
 import logistic_evaluation as le
 import llmAccess as llm
-from datetime import datetime
+from datetime import datetime, timedelta
 import model
 import data
 import html_utils
+import matplotlib.pyplot as plt
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -108,10 +109,36 @@ def action():
             result += html_utils.generate_image('static/training_results.png')
     elif action == '14':
         result = html_utils.generate_image('static/training_results.png')
+    elif action == '15':
+        start_date = datetime.strptime(request.form.get('start_date'), "%d-%m-%Y")
+        end_date = datetime.strptime(request.form.get('end_date'), "%d-%m-%Y")
+        mineral = request.form.get('mineral')
+        X_dates = []
+        y_true = []
+        y_predicted = []
+        current_date = start_date
+        while current_date <= end_date:
+            X_dates.append(current_date)
+            print(mineral)
+            data_packet = data.generate_singe_data_packet(current_date, mineral, step=3, with_target=True)
+            y_true.append(data_packet[-1])
+            current_date += timedelta(days=3)
+            y_predicted.append(model.predict_target_v2(data_packet[:-1], lstm_model, xgb_model, scaler))
+        plt.figure(figsize=(10, 6))
+        plt.plot(X_dates, y_true, label='True Values', marker='o')
+        plt.plot(X_dates, y_predicted, label='Predicted Values', marker='x')
+        plt.xlabel('Date')
+        plt.ylabel('Values')
+        plt.title('True vs Predicted Values')
+        plt.legend()
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig('static/performance_plot.png')
+        plt.show()
+        result = html_utils.generate_image('static/performance_plot.png')
     else:
         result = "Invalid action."
-
-    #track_state()
     flash(result, 'result')
     return redirect(url_for('index'))
 

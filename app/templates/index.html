@@ -63,6 +63,17 @@
                     <input type="text" name="end_date" placeholder="dd-mm-yyyy" required><br>
                 </div>
             </form>
+            <form method="POST" action="/action" class="form">
+                <div class="form-group">
+                    <button type="submit" name="action" value="15" class="btn">Check model performance plot</button><br>
+                    <input type="text" name="start_date" placeholder="dd-mm-yyyy" required><br>
+                    <input type="text" name="end_date" placeholder="dd-mm-yyyy" required><br>
+                    <select name="mineral" required>
+                        <option value="molybdenum">Molybdenum</option>
+                        <option value="manganese">Manganese</option>
+                    </select>
+                </div>
+            </form>
         </nav>
         <section class="results">
             <h2>Results</h2>
