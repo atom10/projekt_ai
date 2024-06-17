@@ -1,0 +1,11 @@
+FROM ollama/ollama
+
+COPY ./ollama_build_files/run-ollama.sh /tmp/run-ollama.sh
+
+WORKDIR /tmp
+
+ENV LLM_MODEL=$LLM_MODEL
+
+RUN chmod +x ./run-ollama.sh
+
+EXPOSE 11434
