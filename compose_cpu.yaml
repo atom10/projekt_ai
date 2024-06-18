@@ -1,55 +1,28 @@
 services:
   ollama:
     build:
-        dockerfile: dockerfiles/ollama
-        context: ./
-    container_name: ollama
+      dockerfile: dockerfiles/ollama
+      context: ./
     environment:
       - LLM_MODEL=${LLM_MODEL}
-    #image: ollama/ollama
-    #entrypoint: ["sh", "-c", "ollama pull ${LLM_MODEL}; ollama serve"]
     entrypoint: "/tmp/run-ollama.sh"
-    tty: true
     healthcheck:
       test: ollama --version || exit 1
-      interval: 10s
-    ports:
-      - "11434:11434"
+      interval: 60s
     volumes:
       - ./ollama:/root/.ollama
     restart: always
-    pull_policy: always
 
   app:
     build:
       context: .
       dockerfile: dockerfiles/python
-    container_name: python_app
     environment:
       - LLM_MODEL=${LLM_MODEL}
     volumes:
       - ./app:/app
-    stdin_open: true  # Keeps stdin open even if not attached
-    tty: true         # Allocate a pseudo-TTY
+    ports:
+      - "5000:5000"
     depends_on:
       - ollama
-
-  # open-webui:
-  #   image: ghcr.io/open-webui/open-webui:main
-  #   environment:
-  #     - WEBUI_AUTH=False
-  #     - 'OLLAMA_BASE_URL=http://ollama:11434'
-  #     - 'WEBUI_SECRET_KEY='
-  #     - NVIDIA_VISIBLE_DEVICES=all
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - ./open-webui:/app/backend/data
-  #   networks:
-  #     - default
-  #   restart: always
-  #   depends_on:
-  #     - ollama
-
-networks:
-  default:
+    restart: always
