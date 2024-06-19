@@ -79,18 +79,19 @@ def action():
     elif action == '12':
         mineral = request.form.get('mineral')
         date = request.form.get('date')
-        packet = data.generate_singe_data_packet(datetime.strptime(date, "%d-%m-%Y"), mineral, with_target=False)
+        packet = data.generate_singe_data_packet(datetime.strptime(date, "%d-%m-%Y"), mineral, with_target=False,
+                                                 generated_data=data_for_training)
         target = model.predict_target_from_single_date(packet, lstm_model, xgb_model, scaler)
         result = html_utils.generate_metric_paragraph(f"Predicted {mineral} price for {date}:", target[0])
     elif action == '13':
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         validation_error = validate_dates(start_date, end_date)
-        if validation_error:
+        if (validation_error):
             result = validation_error
         else:
             lstm_model, xgb_model, scaler = model.load_models()
-            additional_data = data.generate_data(start_date, end_date)
+            additional_data = data.generate_data(start_date, end_date, existing_data=data_for_training)
             lstm_model, xgb_model, scaler, mse, mae, mape = model.retrain_models(additional_data, lstm_model, xgb_model, scaler)
             result = html_utils.generate_metric_paragraph('Mean Squared Error', mse)
             result += html_utils.generate_metric_paragraph('Mean Absolute Error', mae)
@@ -109,7 +110,8 @@ def action():
         while current_date <= end_date:
             X_dates.append(current_date)
             print(mineral)
-            data_packet = data.generate_singe_data_packet(current_date, mineral, step=3, with_target=True)
+            data_packet = data.generate_singe_data_packet(current_date, mineral, step=3, with_target=True,
+                                                          generated_data=data_for_training)
             y_true.append(data_packet[-1])
             current_date += timedelta(days=3)
             y_predicted.append(model.predict_target_from_single_date(data_packet[:-1], lstm_model, xgb_model, scaler))
@@ -129,19 +131,19 @@ def action():
     elif action == 'predict_next_x_days':
         days = int(request.form.get('days'))
         mineral = request.form.get('mineral')
-        
+
         start_date = datetime.now()
         date_end = start_date + timedelta(days=days)
-        
+
         date_list = data.generate_date_range(start_date.strftime("%d-%m-%Y"), date_end.strftime("%d-%m-%Y"))
         targets=[]
         for d in date_list:
-            data_packet = data.generate_singe_data_packet(d, mineral, with_target=False)
+            data_packet = data.generate_singe_data_packet(d, mineral, with_target=False,generated_data=data_for_training)
             targets.append(model.predict_target_from_single_date(data_packet, lstm_model, xgb_model, scaler))
         dates = [date.strftime('%d-%m-%Y') for date in date_list]
-        
+
         # result = "dates:" + str(date_list) + "<br> targets:" + str(targets)
-        
+
         plt.figure(figsize=(10, 5))
         plt.plot(dates, targets, marker='o', linestyle='-')
         plt.xlabel('Date')
