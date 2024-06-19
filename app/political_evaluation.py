@@ -102,13 +102,33 @@ def evaluate(mineral, date_from, date_to):
                 'url': 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
                 'identifiers': ['card-title', 'cm-last-updated'],
                 'is_class': True
+            },
+            {
+                'url': 'https://feeds.bbci.co.uk/news/rss.xml?edition=us',
+                'identifiers': ['card-title', 'cm-last-updated'],
+                'is_class': True
+            },
+            {
+                'url': 'https://feeds.bbci.co.uk/news/rss.xml?edition=int',
+                'identifiers': ['card-title', 'cm-last-updated'],
+                'is_class': True
             }
         ],
         'molybdenum': [
             {
                 'url': 'https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml',
-                'identifiers': ['main-content'],
-                'is_class': False
+                'identifiers': ['card-title', 'cm-last-updated'],
+                'is_class': True
+            },
+            {
+                'url': 'https://feeds.bbci.co.uk/news/rss.xml?edition=us',
+                'identifiers': ['card-title', 'cm-last-updated'],
+                'is_class': True
+            },
+            {
+                'url': 'https://feeds.bbci.co.uk/news/rss.xml?edition=int',
+                'identifiers': ['card-title', 'cm-last-updated'],
+                'is_class': True
             }
         ]
     }
@@ -128,12 +148,13 @@ def evaluate(mineral, date_from, date_to):
         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" + prompt)
         answear = llm.send_prompt(prompt)
         #print(answear)
-        try:
-            value = extract_first_float(answear)
-            score += value
-            sources_asked += 1
-        except ValueError: # this MF meta AI can't follow instructions, abandon ship!
-            pass
+        if answear is not None:
+            try:
+                value = extract_first_float(answear)
+                score += value
+                sources_asked += 1
+            except ValueError: # this MF meta AI can't follow instructions, abandon ship!
+                pass
     
     if sources_asked == 0:
         return [0.0]
