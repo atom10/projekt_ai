@@ -7,8 +7,8 @@ import stock_evaluation as se
 import logistic_evaluation as le
 
 minerals = {
-    'manganese': 0.0,
-    'molybdenum': 1.0
+    'manganese': [0.0, 1.0],
+    'molybdenum': [1.0, 0.0]
 }
 
 def generate_date_range(date_start_str, date_end_str):
@@ -33,7 +33,7 @@ def generate_singe_data_packet(current_date, mineral, step=3, with_target=True, 
     value = minerals[mineral]  # raw value of mineral
     if with_target:
         return np.concatenate((
-            [value],
+            value,
             [float(current_date.timestamp())],
             pe.evaluate(
                 mineral,
@@ -46,7 +46,7 @@ def generate_singe_data_packet(current_date, mineral, step=3, with_target=True, 
         ), axis=None)
     else:
         return np.concatenate((
-            [value],
+            value,
             [float(current_date.timestamp())],
             pe.evaluate(
                 mineral,

@@ -33,3 +33,10 @@ services:
     depends_on:
       - ollama
     restart: always
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -14,6 +14,9 @@ import matplotlib.pyplot as plt
 from keras.optimizers import Adam
 from datetime import datetime, timedelta
 import data
+from tensorflow.keras.layers import Input, LSTM, Dropout, Dense, Concatenate
+from tensorflow.keras.models import Model
+from keras.callbacks import EarlyStopping
 
 sequence_length = 10
 
@@ -27,18 +30,28 @@ def create_sequences(data, target):
     return np.array(xs), np.array(ys)
 
 def create_blank_models(X_element_shape, sequence_length=sequence_length):
-    lstm_model = Sequential([
-        LSTM(64, input_shape=(sequence_length, X_element_shape), return_sequences=True),
-        Dropout(0.2),
-        LSTM(64, return_sequences=True),
-        Dropout(0.2),
-        LSTM(64, return_sequences=True),
-        Dropout(0.2),
-        LSTM(64, return_sequences=False),
-        Dropout(0.2),
-        Dense(1)
-    ])
+    # Define inputs
+    input_features = Input(shape=(sequence_length, X_element_shape), name='input_features')
+    
+    # LSTM layers
+    x = LSTM(128, return_sequences=True)(input_features)
+    x = Dropout(0.3)(x)
+    x = LSTM(128, return_sequences=True)(x)
+    x = Dropout(0.3)(x)
+    x = LSTM(128, return_sequences=True)(x)
+    x = Dropout(0.3)(x)
+    x = LSTM(128, return_sequences=False)(x)
+    x = Dropout(0.3)(x)
+    
+    # Output layer
+    output = Dense(1, activation='linear')(x)
+    
+    # Build the model
+    lstm_model = Model(inputs=input_features, outputs=output)
+    
+    # Compile the model
     lstm_model.compile(optimizer='adam', loss='mean_squared_error')
+    
     xgb_model = xgb.XGBRegressor(n_estimators=100, learning_rate=0.1, max_depth=5)
     return lstm_model, xgb_model
 
@@ -56,7 +69,8 @@ def train_model(data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     lstm_model, xgb_model = create_blank_models(shape)
-    history = lstm_model.fit(X_train, y_train, epochs=500, batch_size=16, validation_split=0.1)
+    early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
+    history = lstm_model.fit(X_train, y_train, epochs=1000, batch_size=16, validation_split=0.1, callbacks=[early_stopping])
 
     # Extract LSTM features
     lstm_features_train = lstm_model.predict(X_train)
@@ -98,7 +112,7 @@ def retrain_models(data, lstm_model, xgb_model, scaler):
     # Split data into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     lstm_model.compile(optimizer=Adam(), loss='mean_squared_error')
-    history = lstm_model.fit(X_train, y_train, epochs=500, batch_size=16, validation_split=0.1)
+    history = lstm_model.fit(X_train, y_train, epochs=1000, batch_size=16, validation_split=0.1)
 
     # Extract LSTM features
     lstm_features_train = lstm_model.predict(X_train)

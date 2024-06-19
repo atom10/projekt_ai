@@ -145,7 +145,7 @@ def evaluate(mineral, date_from, date_to):
             prompt += str(extract_text_from_url(site['url'], site['identifiers'], site['is_class']))
             prompt += "  - Rate how these news in total affect manganese prices from -1.0 as prices drop to 1.0 as prices rise. Ignore news not between " + date_from + " to " + date_to + ". If none matches, rate only news with closest date. give as response only a number, don't write anything else."
             cache.append((site['url'], prompt))
-        print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" + prompt)
+        #print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" + prompt)
         answear = llm.send_prompt(prompt)
         #print(answear)
         if answear is not None:
