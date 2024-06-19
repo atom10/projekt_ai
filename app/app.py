@@ -27,6 +27,16 @@ lstm_model = None
 xgb_model = None
 scaler = None
 
+try:
+    lstm_model, xgb_model, scaler = model.load_models()
+except:
+    pass
+
+try:
+    data_for_training = data.load_data()
+except:
+    pass
+
 def track_state():
     model_status = 'present' if lstm_model is not None else 'missing'
     flash(model_status, 'model_status')
