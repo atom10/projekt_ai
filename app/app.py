@@ -83,20 +83,13 @@ def action():
                                                  generated_data=data_for_training)
         target = model.predict_target_from_single_date(packet, lstm_model, xgb_model, scaler)
         result = html_utils.generate_metric_paragraph(f"Predicted {mineral} price for {date}:", target[0])
-    elif action == '13':
-        start_date = request.form.get('start_date')
-        end_date = request.form.get('end_date')
-        validation_error = validate_dates(start_date, end_date)
-        if (validation_error):
-            result = validation_error
-        else:
-            lstm_model, xgb_model, scaler = model.load_models()
-            additional_data = data.generate_data(start_date, end_date, existing_data=data_for_training)
-            lstm_model, xgb_model, scaler, mse, mae, mape = model.retrain_models(additional_data, lstm_model, xgb_model, scaler)
-            result = html_utils.generate_metric_paragraph('Mean Squared Error', mse)
-            result += html_utils.generate_metric_paragraph('Mean Absolute Error', mae)
-            result += html_utils.generate_metric_paragraph('Mean Absolute Percentage Error', mape)
-            result += html_utils.generate_image('static/training_results.png')
+    elif action == 'retrain':
+        lstm_model, xgb_model, scaler = model.load_models()
+        lstm_model, xgb_model, scaler, mse, mae, mape = model.retrain_models(data_for_training, lstm_model, xgb_model, scaler)
+        result = html_utils.generate_metric_paragraph('Mean Squared Error', mse)
+        result += html_utils.generate_metric_paragraph('Mean Absolute Error', mae)
+        result += html_utils.generate_metric_paragraph('Mean Absolute Percentage Error', mape)
+        result += html_utils.generate_image('static/training_results.png')
     elif action == '14':
         result = html_utils.generate_image('static/training_results.png')
     elif action == '15':

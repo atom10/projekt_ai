@@ -58,14 +58,12 @@
             </form>
             <form method="POST" action="/action" class="form">
                 <div class="form-group">
-                    <button type="submit" name="action" value="13" class="btn">Retrain Models</button><br>
-                    <input type="text" name="start_date" placeholder="dd-mm-yyyy" required><br>
-                    <input type="text" name="end_date" placeholder="dd-mm-yyyy" required><br>
+                    <button type="submit" name="action" value="retrain" class="btn">Retrain Models using loaded data</button><br>
                 </div>
             </form>
             <form method="POST" action="/action" class="form">
                 <div class="form-group">
-                    <button type="submit" name="action" value="15" class="btn">Check model performance plot</button><br>
+                    <button type="submit" name="action" value="15" class="btn">compare true and predicted prices (works with dates in the past)</button><br>
                     <input type="text" name="start_date" placeholder="dd-mm-yyyy" required><br>
                     <input type="text" name="end_date" placeholder="dd-mm-yyyy" required><br>
                     <select name="mineral" required>

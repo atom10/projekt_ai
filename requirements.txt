@@ -8,3 +8,4 @@ matplotlib
 tensorflow
 xgboost
 optimizers
+feedparser

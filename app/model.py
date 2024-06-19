@@ -56,7 +56,7 @@ def train_model(data):
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
     lstm_model, xgb_model = create_blank_models(shape)
-    history = lstm_model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.1)
+    history = lstm_model.fit(X_train, y_train, epochs=500, batch_size=16, validation_split=0.1)
 
     # Extract LSTM features
     lstm_features_train = lstm_model.predict(X_train)
@@ -98,7 +98,7 @@ def retrain_models(data, lstm_model, xgb_model, scaler):
     # Split data into train and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     lstm_model.compile(optimizer=Adam(), loss='mean_squared_error')
-    history = lstm_model.fit(X_train, y_train, epochs=100, batch_size=16, validation_split=0.1)
+    history = lstm_model.fit(X_train, y_train, epochs=500, batch_size=16, validation_split=0.1)
 
     # Extract LSTM features
     lstm_features_train = lstm_model.predict(X_train)
