@@ -48,7 +48,7 @@ def fetch_weather_data(lat, lon, date):
     return None
 
 def calculate_climate_averages(lat, lon):
-    years = [f"{year}-06-01" for year in range(2015, 2023)]  # zakres dat dla średniej
+    years = [f"01-06-{year}" for year in range(2015, 2023)]  # zakres dat dla średniej
     weather_data = []
 
     for date in years:
