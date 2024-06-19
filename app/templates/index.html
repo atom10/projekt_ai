@@ -48,7 +48,7 @@
             </form>
             <form method="POST" action="/action" class="form">
                  <div class="form-group">
-                    <button type="submit" name="action" value="12" class="btn">Predict Mineral Price</button><br>
+                    <button type="submit" name="action" value="12" class="btn">Predict mineral price for single date</button><br>
                       <select name="mineral" required>
                           <option value="molybdenum">Molybdenum</option>
                           <option value="manganese">Manganese</option>
@@ -68,6 +68,16 @@
                     <button type="submit" name="action" value="15" class="btn">Check model performance plot</button><br>
                     <input type="text" name="start_date" placeholder="dd-mm-yyyy" required><br>
                     <input type="text" name="end_date" placeholder="dd-mm-yyyy" required><br>
+                    <select name="mineral" required>
+                        <option value="molybdenum">Molybdenum</option>
+                        <option value="manganese">Manganese</option>
+                    </select>
+                </div>
+            </form>
+            <form method="POST" action="/action" class="form">
+                <div class="form-group">
+                    <button type="submit" name="action" value="predict_next_x_days" class="btn">predict prices for next x days</button><br>
+                    <input type="number" name="days" placeholder="days" required><br>
                     <select name="mineral" required>
                         <option value="molybdenum">Molybdenum</option>
                         <option value="manganese">Manganese</option>

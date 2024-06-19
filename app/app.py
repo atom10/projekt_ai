@@ -49,18 +49,7 @@ def action():
     global data_for_training, lstm_model, xgb_model, scaler
 
     action = request.form.get('action')
-    if action == '1':
-        prompt = "Who are you?"
-        result = "Q: " + prompt + "\nA: " + llm.send_prompt(prompt)
-    elif action == '2':
-        result = str(pe.evaluate('manganese', '01-01-1970', '01-01-2025'))
-    elif action == '3':
-        result = str(we.weather_evaluation('manganese', '08-06-2024'))
-    elif action == '4':
-        result = str(se.getValue('01-01-2024', 'manganese'))
-    elif action == '5':
-        result = str(le.logistic_evaluation('01-01-2024'))
-    elif action == '6':
+    if action == '6':
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         validation_error = validate_dates(start_date, end_date)
@@ -91,7 +80,7 @@ def action():
         mineral = request.form.get('mineral')
         date = request.form.get('date')
         packet = data.generate_singe_data_packet(datetime.strptime(date, "%d-%m-%Y"), mineral, with_target=False)
-        target = model.predict_target(packet, lstm_model, xgb_model, scaler)
+        target = model.predict_target_from_single_date(packet, lstm_model, xgb_model, scaler)
         result = html_utils.generate_metric_paragraph(f"Predicted {mineral} price for {date}:", target[0])
     elif action == '13':
         start_date = request.form.get('start_date')
@@ -123,7 +112,7 @@ def action():
             data_packet = data.generate_singe_data_packet(current_date, mineral, step=3, with_target=True)
             y_true.append(data_packet[-1])
             current_date += timedelta(days=3)
-            y_predicted.append(model.predict_target_v2(data_packet[:-1], lstm_model, xgb_model, scaler))
+            y_predicted.append(model.predict_target_from_single_date(data_packet[:-1], lstm_model, xgb_model, scaler))
         plt.figure(figsize=(10, 6))
         plt.plot(X_dates, y_true, label='True Values', marker='o')
         plt.plot(X_dates, y_predicted, label='Predicted Values', marker='x')
@@ -137,6 +126,33 @@ def action():
         plt.savefig('static/performance_plot.png')
         plt.show()
         result = html_utils.generate_image('static/performance_plot.png')
+    elif action == 'predict_next_x_days':
+        days = int(request.form.get('days'))
+        mineral = request.form.get('mineral')
+        
+        start_date = datetime.now()
+        date_end = start_date + timedelta(days=days)
+        
+        date_list = data.generate_date_range(start_date.strftime("%d-%m-%Y"), date_end.strftime("%d-%m-%Y"))
+        targets=[]
+        for d in date_list:
+            data_packet = data.generate_singe_data_packet(d, mineral, with_target=False)
+            targets.append(model.predict_target_from_single_date(data_packet, lstm_model, xgb_model, scaler))
+        dates = [date.strftime('%d-%m-%Y') for date in date_list]
+        
+        # result = "dates:" + str(date_list) + "<br> targets:" + str(targets)
+        
+        plt.figure(figsize=(10, 5))
+        plt.plot(dates, targets, marker='o', linestyle='-')
+        plt.xlabel('Date')
+        plt.ylabel('Target')
+        plt.title('Target Values over Time')
+        plt.xticks(rotation=45)
+        plt.grid(True)
+        plt.tight_layout()
+        plt.savefig('static/predictions_for_n_days.png')
+        plt.close()  # Close the plot to avoid displaying it in Flask
+        result = html_utils.generate_image('static/predictions_for_n_days.png')
     else:
         result = "Invalid action."
     flash(result, 'result')

@@ -11,6 +11,17 @@ minerals = {
     'molybdenum': 1.0
 }
 
+def generate_date_range(date_start_str, date_end_str):
+    date_start = datetime.strptime(date_start_str, "%d-%m-%Y")
+    date_end = datetime.strptime(date_end_str, "%d-%m-%Y")
+    delta = (date_end - date_start).days
+    return [date_start + timedelta(days=i) for i in range(delta + 1)]
+
+def generate_date_range_from_today(n):
+    start_date = datetime.now()
+    date_list = [start_date + timedelta(days=x) for x in range(n+1)]
+    return date_list
+
 def generate_singe_data_packet(current_date, mineral, step=3, with_target=True):
     value = minerals[mineral] # raw value of mineral
     if with_target:
@@ -52,7 +63,6 @@ def generate_data(date_from, date_to, step=3):
     # Loop from start_date to end_date with a step of 'step' days
     while current_date <= end_date:
         data_packet = []
-        #current_date.strftime("%d-%m-%Y")
         current_date += timedelta(days=step)
         for mineral, value in minerals.items():
             data_packet = generate_singe_data_packet(current_date,mineral,step)
@@ -67,5 +77,3 @@ def save_data(data, output_name="data.csv"):
 
 def load_data(input_name="data.csv"):
     return np.genfromtxt(input_name, delimiter=delimiter)
-
-#datetime.strptime("05-01-2000", "%d-%m-%Y")
