@@ -4,6 +4,8 @@ import re
 from bs4 import BeautifulSoup
 import feedparser
 
+cache = []
+
 def extract_text_from_url(url, identifiers, is_class=True):
     # Define headers for making the request
     request_headers = {
@@ -34,8 +36,11 @@ def extract_text_from_url(url, identifiers, is_class=True):
                     extracted_text.append(entry.description)
                 elif 'title' in entry:
                     extracted_text.append(entry.title)
-                if 'pubDate' in entry:
-                    extracted_text.append(entry.pubDate)
+                
+                # Check for various possible date attributes
+                pub_date = entry.get('pubDate') or entry.get('published') or entry.get('updated')
+                if pub_date:
+                    extracted_text.append(f"Published on: {pub_date}")
                     
             combined_text = "\n".join(extracted_text)
         
@@ -112,11 +117,17 @@ def evaluate(mineral, date_from, date_to):
     sources_asked = 0
     for site in news_sites[mineral]:
         prompt = ""
-        prompt += str(extract_text_from_url(site['url'], site['identifiers'], site['is_class']))
-        prompt += "  - Rate how these news in total affect manganese prices from -1.0 as prices drop to 1.0 as prices rise. Ignore news not between " + date_from + " to " + date_to + ". If none matches, rate only news with closest date. give as response only a number, don't write anything else."
+        for cached_url, cached_prompt in cache:
+            if cached_url == site['url']:
+                prompt = cached_prompt
+                break
+        if prompt == "":
+            prompt += str(extract_text_from_url(site['url'], site['identifiers'], site['is_class']))
+            prompt += "  - Rate how these news in total affect manganese prices from -1.0 as prices drop to 1.0 as prices rise. Ignore news not between " + date_from + " to " + date_to + ". If none matches, rate only news with closest date. give as response only a number, don't write anything else."
+            cache.append((site['url'], prompt))
         print("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\n" + prompt)
         answear = llm.send_prompt(prompt)
-        print(answear)
+        #print(answear)
         try:
             value = extract_first_float(answear)
             score += value
